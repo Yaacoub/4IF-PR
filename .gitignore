@@ -59,6 +59,7 @@ dkms.conf
 *.dwo
 
 bin/*
+build/*
 
 # macOS
 # https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
