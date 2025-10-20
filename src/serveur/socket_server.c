@@ -1,4 +1,10 @@
-/* socket_server.c — serveur multi-clients simple */
+/* socket_server.c — serveur multi-clients simple (echo)
+ * Commentaires en français.
+ *
+ * Ce serveur accepte des connexions TCP et fork() un fils par client.
+ * Le fils effectue un echo avec un préfixe [PID=...].
+ */
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <signal.h>
@@ -20,7 +26,8 @@ int main(int argc, char **argv) {
   int sd, scomm;
   struct sockaddr_in adr_serv;
 
-  signal(SIGCHLD, SIG_IGN);               
+  /* Ignorer SIGCHLD pour éviter les zombies (simple approche). */
+  signal(SIGCHLD, SIG_IGN);
 
   sd = socket(AF_INET, SOCK_STREAM, 0);
   if (sd < 0) { perror("socket"); return 1; }
@@ -43,40 +50,39 @@ int main(int argc, char **argv) {
   printf("serveur: j’écoute sur le port %d…\n", port);
 
   while (1) {
-    scomm = accept(sd, NULL, NULL); 
-    //si c'etait interrompu par une signal (errno == EINTR) → reesayyer, sinon → imprime erreur et revient au boucle.
+    scomm = accept(sd, NULL, NULL);
     if (scomm < 0) {
       if (errno == EINTR) continue;
       perror("accept");
       continue;
     }
 
-    pid_t pid = fork();                // créer un fils pour chaque client
+    pid_t pid = fork();
     if (pid < 0) {
       perror("fork");
       close(scomm);
       continue;
     }
 
-    if (pid == 0) {                       // fils
-      close(sd);                          // le fils n'accept des nouveaux
+    if (pid == 0) { /* fils */
+      close(sd); /* le fils n'accept pas de nouvelles connexions */
       printf("serveur(fils %d): client connecté.\n", getpid());
 
-      // echo con prefijo PID
       char buf[1024];
       ssize_t n;
       while ((n = read(scomm, buf, sizeof buf)) > 0) {
         char prefix[64];
         int plen = snprintf(prefix, sizeof(prefix), "[PID=%d] ", getpid());
         if (plen > 0) write(scomm, prefix, (size_t)plen);
+        /* écrire exactement ce qu'on a reçu */
         write(scomm, buf, (size_t)n);
       }
 
       close(scomm);
       printf("serveur(fils %d): client déconnecté, je termine.\n", getpid());
       _exit(0);
-    } else {                              // père
-      close(scomm);                       // pere revient à l'accept
+    } else { /* père */
+      close(scomm); /* père retourne à l'accept */
     }
   }
 
