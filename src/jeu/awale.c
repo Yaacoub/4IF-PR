@@ -10,6 +10,7 @@ int * jouer_coup(int * plateau, char case_jouee);
 
 int main(){
     int * plateau = initialiser_jeu();
+    int score[2] = {0,0};
     if (!plateau) return 1;
 
     afficher_plateau(plateau);
