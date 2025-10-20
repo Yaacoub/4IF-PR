@@ -1,44 +1,49 @@
-# Makefile multi-target: server et client (corregido)
+# Compilateur et options
 CC := gcc
-CFLAGS := -Wall -Wextra -std=c11 -O2 -g -I./src
-LDLIBS :=
+CFLAGS := -Wall -Wextra -std=c11 -O2 -g
+LDFLAGS :=
+RM := rm -f
 
+# Répertoires
 SRC_DIR := src
+OBJ_DIR := build
 BIN_DIR := bin
-BUILD_DIR := build
 
-# fuentes por target
-SRV_SRCS := $(wildcard $(SRC_DIR)/server/*.c) $(wildcard $(SRC_DIR)/jeu/*.c)
-CLT_SRCS := $(wildcard $(SRC_DIR)/client/*.c)
+# Fichiers par composant
+JEU_SRCS := $(shell find $(SRC_DIR)/jeu -name '*.c')
+JEU_OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(JEU_SRCS))
+JEU_BIN := $(BIN_DIR)/awale
 
-# objetos mantienen la ruta original dentro de build/
-SRV_OBJS := $(SRV_SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
-CLT_OBJS := $(CLT_SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+SERVER_SRCS := $(shell find $(SRC_DIR)/serveur -name '*.c')
+SERVER_OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SERVER_SRCS))
+SERVER_BIN := $(BIN_DIR)/serveur
 
-.PHONY: all clean
+CLIENT_SRCS := $(shell find $(SRC_DIR)/client -name '*.c')
+CLIENT_OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(CLIENT_SRCS))
+CLIENT_BIN := $(BIN_DIR)/client
 
-all: $(BIN_DIR)/server $(BIN_DIR)/client
+# Règles de construction
+.PHONY: all clean install
+all: $(JEU_BIN) $(SERVER_BIN) $(CLIENT_BIN)
 
-# Binaries
-$(BIN_DIR)/server: $(SRV_OBJS) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $(SRV_OBJS) $(LDLIBS)
-	@echo "Compilé: $@"
-
-$(BIN_DIR)/client: $(CLT_OBJS) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $(CLT_OBJS) $(LDLIBS)
-	@echo "Compilé: $@"
-
-# Regla genérica: build/src/.../file.o depende de src/.../file.c
-# nota: $(@:$(BUILD_DIR)/%=%) transforma build/src/..../f.o -> src/..../f.o
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+# Edition des liens (liaison)
+$(JEU_BIN): $(JEU_OBJS)
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-# Crear bin dir
-$(BIN_DIR):
-	mkdir -p $(BIN_DIR)
+$(SERVER_BIN): $(SERVER_OBJS)
+	@mkdir -p $(dir $@)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+$(CLIENT_BIN): $(CLIENT_OBJS)
+	@mkdir -p $(dir $@)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+# Compilation
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	@rm -rf $(BUILD_DIR) $(BIN_DIR)
-	@echo "Nettoyé"
-
+	$(RM) $(SERVER_BIN) $(CLIENT_BIN) $(OBJECTS)
+	@rm -rf $(OBJ_DIR) $(BIN_DIR)
