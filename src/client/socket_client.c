@@ -1,7 +1,5 @@
-/* socket_client.c — client TCP simple qui envoie le contenu d'un fichier
- * Commentaires en français.
- *
- * Usage: ./client <server_ip> <port>
+/* Client pour les sockets
+ *    socket_client ip_server port
  */
 
 #include <stdlib.h>
