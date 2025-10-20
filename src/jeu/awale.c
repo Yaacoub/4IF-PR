@@ -76,3 +76,17 @@ int * jouer_coup(int * plateau, char case_jouee){
     return plateau;
 }
 
+int * majScore(int * scores, int joueur, int val){
+    return scores;
+}
+
+int capturerGraine(int ** plateau, int derniere_case){
+    return 0;
+}
+
+int verifierFinPartie(int ** plateau, int joueur){
+    return 0;
+}
+
+
+

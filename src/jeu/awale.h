@@ -29,6 +29,12 @@ int trouver_index(char key);
 /* Permet de jouer un coup */
 int * jouer_coup(int * plateau, char case_jouee);
 
+int * majScore(int * scores, int joueur, int val);
+
+int capturerGraine(int ** plateau, int derniere_case);
+
+int verifierFinPartie(int ** plateau, int joueur);
+
 
 
 #endif /* AWALE_H */
