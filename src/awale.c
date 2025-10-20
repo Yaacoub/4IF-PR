@@ -1,6 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int * initialiser_jeu();
+void afficher_plateau(int * plateau);
+
+int main(){
+    int * plateau = initialiser_jeu();
+    if (!plateau) return 1;
+
+    /* exemple : afficher le plateau */
+    afficher_plateau(plateau);
+
+    free(plateau);
+    return 0;
+}
+
+//Fonctions
+
 /* allouer et initialiser le plateau de jeu
    renvoie un pointeur vers un tableau de 10 entiers alloué sur le tas
    l'appelant est responsable de free() lorsque le plateau n'est plus utilisé */
@@ -24,16 +40,5 @@ void afficher_plateau(int * plateau){
     for (int i = 0; i < 6; ++i) printf("%d\t", plateau[i]);
     printf("\n");
     printf("A\tB\tC\tD\tE\tF\n");
-}
-
-int main(){
-    int * plateau = initialiser_jeu();
-    if (!plateau) return 1;
-
-    /* exemple : afficher le plateau */
-    afficher_plateau(plateau);
-
-    free(plateau);
-    return 0;
 }
 
